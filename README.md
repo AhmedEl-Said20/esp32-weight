@@ -1,4 +1,3 @@
-
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -74,17 +73,17 @@
     // Your web app's Firebase configuration
     const firebaseConfig = { 
       apiKey: "AIzaSyA-qmbXDPidGFpY08xXJfpMI_cdnMaMIqA",
-  authDomain: "weight-601c9.firebaseapp.com",
-  databaseURL: "https://weight-601c9-default-rtdb.firebaseio.com",
-  projectId: "weight-601c9",
-  storageBucket: "weight-601c9.appspot.com",
-  messagingSenderId: "177364828227",
-  appId: "1:177364828227:web:31d795b7a0a4a98b9c94f6",
-  measurementId: "G-4NJ8Q3BPGD
+      authDomain: "weight-601c9.firebaseapp.com",
+      databaseURL: "https://weight-601c9-default-rtdb.firebaseio.com",
+      projectId: "weight-601c9",
+      storageBucket: "weight-601c9.appspot.com",
+      messagingSenderId: "177364828227",
+      appId: "1:177364828227:web:31d795b7a0a4a98b9c94f6",
+      measurementId: "G-4NJ8Q3BPGD"
     };
 
     // Initialize Firebase
-    const app = firebase.initializeApp(firebaseConfig);
+    firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
 
     // Reference your database path
@@ -101,6 +100,8 @@
         const units = weight / unitWeight;
         document.getElementById('units').innerText = `Number of Units: ${units.toFixed(2)}`;
       }
+    }, (error) => {
+      console.error("Error fetching weight data: ", error);
     });
 
     // Function to tare the scale
