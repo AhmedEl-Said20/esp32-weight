@@ -71,34 +71,28 @@
   </div>
 
   <script>
-    // Import the functions you need from the SDKs you need
-    import { initializeApp } from "firebase/app";
-    import { getAnalytics } from "firebase/analytics";
-    import { getDatabase, ref, onValue, set } from "firebase/database";
-
     // Your web app's Firebase configuration
     const firebaseConfig = { 
-  apiKey: "AIzaSyCENwRUTdGb7oa2ymsSGs2TDvN0z-aQIvA",
-  authDomain: "esp32-c72b0.firebaseapp.com",
-  databaseURL: "https://esp32-c72b0-default-rtdb.firebaseio.com",
-  projectId: "esp32-c72b0",
-  storageBucket: "esp32-c72b0.appspot.com",
-  messagingSenderId: "1035271337480",
-  appId: "1:1035271337480:web:4b4b43b6f518f1adfa83bd",
-  measurementId: "G-ERER2ESDC3"
-   };
+      apiKey: "AIzaSyCENwRUTdGb7oa2ymsSGs2TDvN0z-aQIvA",
+      authDomain: "esp32-c72b0.firebaseapp.com",
+      databaseURL: "https://esp32-c72b0-default-rtdb.firebaseio.com",
+      projectId: "esp32-c72b0",
+      storageBucket: "esp32-c72b0.appspot.com",
+      messagingSenderId: "1035271337480",
+      appId: "1:1035271337480:web:4b4b43b6f518f1adfa83bd",
+      measurementId: "G-ERER2ESDC3"
+    };
 
     // Initialize Firebase
-    const app = initializeApp(firebaseConfig);
-    const analytics = getAnalytics(app);
-    const database = getDatabase(app);
+    const app = firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
 
     // Reference your database path
-    const weightRef = ref(database, 'sensor/weight');
-    const tareRef = ref(database, 'sensor/tare');
+    const weightRef = database.ref('sensor/weight');
+    const tareRef = database.ref('sensor/tare');
 
     // Get data from Firebase
-    onValue(weightRef, (snapshot) => {
+    weightRef.on('value', (snapshot) => {
       const weight = snapshot.val();
       document.getElementById('weight').innerText = `Weight: ${weight} kg`;
 
@@ -111,7 +105,7 @@
 
     // Function to tare the scale
     function tareScale() {
-      set(tareRef, true).then(() => {
+      tareRef.set(true).then(() => {
         alert('Scale tared successfully');
       }).catch((error) => {
         alert('Error taring scale: ' + error.message);
