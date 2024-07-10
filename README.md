@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -55,63 +56,74 @@
       background-color: #0056b3;
     }
   </style>
-  <!-- Firebase App (the core Firebase SDK) is always required and must be listed first -->
-  <script src="https://www.gstatic.com/firebasejs/9.8.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.8.0/firebase-analytics.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.8.0/firebase-database.js"></script>
-</head>
-<body>
-  <div class='container'>
-    <h1>Weight Display</h1>
-    <p id='weight'>Weight: </p>
-    <input type='number' id='unitWeight' placeholder='Enter unit weight (kg)' step='0.001'>
-    <p id='units'>Number of Units: </p>
-    <button onclick='tareScale()'>Tare Scale</button>
-  </div>
+  <script type="module">
+    // Import the functions you need from the SDKs you need
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+    import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
 
-  <script>
-    // Your web app's Firebase configuration
-    const firebaseConfig = { 
-      apiKey: "AIzaSyA-qmbXDPidGFpY08xXJfpMI_cdnMaMIqA",
-      authDomain: "weight-601c9.firebaseapp.com",
-      databaseURL: "https://weight-601c9-default-rtdb.firebaseio.com",
-      projectId: "weight-601c9",
-      storageBucket: "weight-601c9.appspot.com",
-      messagingSenderId: "177364828227",
-      appId: "1:177364828227:web:31d795b7a0a4a98b9c94f6",
-      measurementId: "G-4NJ8Q3BPGD"
+    // Your Firebase configuration
+    const firebaseConfig = {
+        apiKey: "AIzaSyA-qmbXDPidGFpY08xXJfpMI_cdnMaMIqA",
+  authDomain: "weight-601c9.firebaseapp.com",
+  databaseURL: "https://weight-601c9-default-rtdb.firebaseio.com",
+  projectId: "weight-601c9",
+  storageBucket: "weight-601c9.appspot.com",
+  messagingSenderId: "177364828227",
+  appId: "1:177364828227:web:31d795b7a0a4a98b9c94f6",
+  measurementId: "G-4NJ8Q3BPGD"
     };
 
     // Initialize Firebase
-    firebase.initializeApp(firebaseConfig);
-    const database = firebase.database();
+    const app = initializeApp(firebaseConfig);
+    const database = getDatabase(app);
 
-    // Reference your database path
-    const weightRef = database.ref('sensor/weight');
-    const tareRef = database.ref('sensor/tare');
+    // Function to fetch weight data from Firebase
+    function fetchWeight() {
+        const weightRef = ref(database, 'weight');
+        onValue(weightRef, (snapshot) => {
+            const weight = snapshot.val();
+            document.getElementById('weight').innerText = Weight:${weight} kg ;
 
-    // Get data from Firebase
-    weightRef.on('value', (snapshot) => {
-      const weight = snapshot.val();
-      document.getElementById('weight').innerText = `Weight: ${weight} kg`;
-
-      const unitWeight = parseFloat(document.getElementById('unitWeight').value);
-      if (unitWeight > 0) {
-        const units = weight / unitWeight;
-        document.getElementById('units').innerText = `Number of Units: ${units.toFixed(2)}`;
-      }
-    }, (error) => {
-      console.error("Error fetching weight data: ", error);
-    });
+            // Calculate number of units
+            const unitWeight = parseFloat(document.getElementById('unitWeight').value);
+            if (!isNaN(unitWeight) && unitWeight > 0) {
+                const numberOfUnits = Math.floor(weight / unitWeight);
+                document.getElementById('units').innerText = Number of Units: ${numberOfUnits};
+            } else {
+                document.getElementById('units').innerText = Number of Units: 0;
+            }
+        });
+    }
 
     // Function to tare the scale
-    function tareScale() {
-      tareRef.set(true).then(() => {
-        alert('Scale tared successfully');
-      }).catch((error) => {
-        alert('Error taring scale: ' + error.message);
-      });
+    async function tareScale() {
+        try {
+            await fetch('/tare');
+            alert('Scale tared successfully');
+            // Update the weight display to 0
+            set(ref(database, 'weight'), 0);
+            document.getElementById('weight').innerText = 'Weight: 0 kg';
+            document.getElementById('units').innerText = Number of Units: 0;
+        } catch (error) {
+            console.error('Error taring the scale:', error);
+            alert('Failed to tare the scale');
+        }
     }
+
+    // Call the function to fetch weight data
+    fetchWeight();
+
+    // Update units calculation when unit weight input changes
+    document.getElementById('unitWeight').addEventListener('input', fetchWeight);
   </script>
+</head>
+<body>
+  <div class="container">
+    <h1>Weight Display</h1>
+    <p id="weight">Weight: </p>
+    <input type="number" id="unitWeight" placeholder="Enter unit weight (kg)" step="0.001">
+    <p id="units">Number of Units: </p>
+    <button onclick="tareScale()">Tare Scale</button>
+  </div>
 </body>
 </html>
